@@ -1,9 +1,15 @@
 import React, { Component } from 'react';
+import Results from './Results'
 
 class SearchPanel extends Component {
-    state = {
-    topic: ""
+  constructor(props){
+    super (props)
+    this.state = {
+      topic: "",
+      articles: []
     };
+  }
+    
 
     onTopicCange = event => {
         this.setState({
@@ -14,17 +20,21 @@ class SearchPanel extends Component {
     onFormSubmit = event => {
         event.preventDefault();
         fetch(
-        `https://api.nytimes.com/svc/search/v2/articlesearch.json?q=${this.state.topic}&api-key=QFGGyfkDkS7fzmnZ8Ex5ZkjSdbStDAW1`,
+        `https://api.nytimes.com/svc/search/v2/articlesearch.json?
+        q=${this.state.topic}
+        &api-key=QFGGyfkDkS7fzmnZ8Ex5ZkjSdbStDAW1`,
         {
-            method: 'GET',
             headers: {
                 'Accept': 'application/json'
             }
         }
         ).then(res => {
-            console.log(res);
             return res.json();
-        });
+        })
+        .then((json) => {
+          const elements = json.response.docs;
+          this.setState({ articles: elements})
+        })
     };
   render() {
     return (
@@ -54,8 +64,7 @@ class SearchPanel extends Component {
                       type="submit"
                       className="btn btn-primary"
                     >
-                      {" "}
-                      Submit
+                      Search
                     </button>
                   </form>
                 </div>
@@ -65,19 +74,20 @@ class SearchPanel extends Component {
         </div>
         <br />
 
-        <div className="row">
-          <div className="col-lg-8">
-            <div className="panel panel-primary">
-              <div className="panel-heading">
-                <h3 className="panel-title">
-                  <strong> Results </strong>
-                </h3>
-              </div>
-              <div className="panel-body" />
-            </div>
+        <div className="container">
+          <div className="col-8 p-0 h-100 offset-2">
+            <h3 className="panel-title text-center">
+              Results 
+            </h3>
+            <div className="panel-body">
+              <ul className="list-group">
+                {this.state.articles.map(article=> {
+                  return <Results {...article} key={article._id}/>;
+                })}
+              </ul>
           </div>
         </div>
-        <br />
+        </div>
       </div>
     );
   }
